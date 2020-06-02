@@ -49,9 +49,10 @@ public class FXMLController {
     		
     		model.creaGrafo(year);
     		List<CountryAndNumber> countriesWithNumber = model.getCountryNumber();
+    		txtResult.appendText(String.format("Grafo creato: #Vertici %d - #Archi %d \n", model.numberVertex(), model.numberEdge()));
     		
     		for(CountryAndNumber cn : countriesWithNumber) {
-    			txtResult.appendText(String.format("%s (%s) - paesi adiacenti: %d ", 
+    			txtResult.appendText(String.format("%s (%s) - paesi adiacenti: %d \n", 
     									cn.getCountry().getStateName(), 
     									cn.getCountry().getStateAbb(), 
     									cn.getNumAdiacenze()));

@@ -25,6 +25,7 @@ public class Model {
 
 	public Model() {
 		dao = new BordersDAO();
+		countriesMap = new HashMap<>();
 		allCountries = dao.loadAllCountries(countriesMap);
 		// La mappa viene riempita nel DAO
 	}
@@ -71,6 +72,14 @@ public class Model {
 		
 		return result;
 		
+	}
+	
+	public int numberVertex() {
+		return graph.vertexSet().size();
+	}
+	
+	public int numberEdge() {
+		return graph.edgeSet().size();
 	}
 	
 }
