@@ -15,41 +15,47 @@ import it.polito.tdp.borders.db.BordersDAO;
 
 public class Model {
 	
-	private Graph<Country, DefaultEdge> graph ;
-	private Map<Integer,Country> countriesMap ;
+	private List<Country> countries;
+	private Map<Integer, Country> countriesMap;
+	private Graph<Country, DefaultEdge> graph;
+	private List<Adiacenza> adiacenze;
 	
+	private BordersDAO dao;
+
 	public Model() {
-		this.countriesMap = new HashMap<>() ;
-
+		dao = new BordersDAO();
+		this.countries = dao.loadAllCountries(countriesMap);
+		// La mappa viene riempita nel DAO
 	}
 	
-	public void creaGrafo(int anno) {
+	public void creaGrafo(int year) {
 		
-		this.graph = new SimpleGraph<>(DefaultEdge.class) ;
-
-		BordersDAO dao = new BordersDAO() ;
+		graph = new SimpleGraph<Country, DefaultEdge>(DefaultEdge.class);
 		
-		//vertici
-		dao.getCountriesFromYear(anno,this.countriesMap) ;
-		Graphs.addAllVertices(graph, this.countriesMap.values()) ;
+		// Creare i vertici 
+		Graphs.addAllVertices(graph, dao.getCountryByYear(year, countriesMap));
 		
-		// archi
-		List<Adiacenza> archi = dao.getCoppieAdiacenti(anno) ;
-		for( Adiacenza c: archi) {
-			graph.addEdge(this.countriesMap.get(c.getState1no()), 
-					this.countriesMap.get(c.getState2no())) ;
-			
+		// Creare gli archi
+		adiacenze = dao.getAdiacenzeFromCountryConttype1(year, countriesMap);
+		for(Adiacenza a : adiacenze) {
+			Country c1 = countriesMap.get(a.getState1no());
+			Country c2 = countriesMap.get(a.getState2no());
+			if(!graph.containsEdge(c1, c2)) {
+				graph.addEdge(c1, c2);
+			}
 		}
 	}
 	
-	public List<CountryAndNumber> getCountryAndNumber() {
-		List<CountryAndNumber> list = new ArrayList<>() ;
+	public int contaAdiacenze(Country c) {
+		int codeCountry = c.getcCode();
+		int result = 0;
 		
-		for(Country c: graph.vertexSet()) {
-			list.add(new CountryAndNumber(c, graph.degreeOf(c))) ;
+		for (int i = 0; i < adiacenze.size(); i++) {
+			if(adiacenze.get(i).getState1no() == codeCountry)
+				result++;
 		}
-		Collections.sort(list);
-		return list ;
+		
+		return result;
 	}
-
+	
 }

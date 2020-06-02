@@ -57,83 +57,65 @@ public class BordersDAO {
 		return null ;
 	}
 	
-	public List<Country> getCountriesFromYear(int anno,Map<Integer,Country> countriesMap) {
-		String sql = "select * from country " + 
-				"where CCode in ( " + 
-				"select state1no " + 
-				"from contiguity " + 
-				"where year<=? and conttype=1)" ;
+	public List<Country> getCountryByYear(int year, Map<Integer, Country> countriesMap) {
+		
+		String sql = "select distinct(c.state1no) " + 
+				"from contiguity as c " + 
+				"where c.conttype = 1 and year <= ? " + 
+				"group by c.state1no, c.state1ab";
 		
 		try {
-			Connection conn = DBConnect.getConnection() ;
-
-			PreparedStatement st = conn.prepareStatement(sql) ;
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, year);
+			ResultSet rs = st.executeQuery();
 			
-			st.setInt(1, anno);
-			ResultSet rs = st.executeQuery() ;
-			
-			List<Country> list = new LinkedList<Country>() ;
-			
-			while( rs.next() ) {
-				
-				if(countriesMap.get(rs.getInt("ccode")) == null){
-					Country c = new Country(
-							rs.getInt("ccode"),
-							rs.getString("StateAbb"), 
-							rs.getString("StateNme")) ;
-					countriesMap.put(c.getcCode(), c);
-					list.add(c);
-				} else 
-					list.add(countriesMap.get(rs.getInt("ccode")));
-			}
-			
-			conn.close() ;
-			
-			return list ;
-			
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return null ;
-
-	}
-	
-	public List<Adiacenza> getCoppieAdiacenti(int anno) {
-		String sql = "select state1no, state2no " + 
-				"from contiguity " + 
-				"where year<=? " + 
-				"and conttype=1 " + 
-				"and state1no < state2no" ;
-		
-		List<Adiacenza> result = new ArrayList<>() ;
-		
-		try {
-			Connection conn = DBConnect.getConnection() ;
-
-			PreparedStatement st = conn.prepareStatement(sql) ;
-			
-			st.setInt(1, anno);
-			
-			ResultSet rs = st.executeQuery() ;
+			List<Country> result = new ArrayList<>();
 			
 			while(rs.next()) {
-				result.add(new Adiacenza(rs.getInt("state1no"), rs.getInt("state2no"))) ;
+				result.add(countriesMap.get(rs.getInt("state1no")));
 			}
 			
 			conn.close();
-			return result ;
+			return result;
 			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+		} catch(SQLException e) {
 			e.printStackTrace();
-			return null ;
+			return null;
 		}
 		
 	}
 	
+	public List<Adiacenza> getAdiacenzeFromCountryConttype1(int year, 
+									Map<Integer, Country> countriesMap) {
+		
+		String sql = "select c.state1no as s1, c.state2no as s2 " + 
+				"from contiguity as c " + 
+				"where c.conttype = 1 and year <= ? " + 
+				"group by c.state1no, c.state2no ";
+		
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, year);
+			ResultSet rs = st.executeQuery();
+			
+			List<Adiacenza> result = new ArrayList<>();
+			
+			while(rs.next()) {
+				Adiacenza a = new Adiacenza(rs.getInt("s1"), rs.getInt("s2"));
+				result.add(a);
+			}
+			
+			conn.close();
+			return result;
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
 	
 	
 	
