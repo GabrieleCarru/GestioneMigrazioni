@@ -17,7 +17,7 @@ public class BordersDAO {
 	public List<Country> loadAllCountries(Map<Integer,Country> countriesMap) {
 		
 		String sql = 
-				"SELECT ccode,StateAbb,StateNme " +
+				"SELECT CCode,StateAbb,StateNme " +
 				"FROM country " +
 				"ORDER BY StateAbb " ;
 
@@ -28,33 +28,27 @@ public class BordersDAO {
 			
 			ResultSet rs = st.executeQuery() ;
 			
-			List<Country> list = new LinkedList<Country>() ;
+			List<Country> result = new ArrayList<>();
 			
 			while( rs.next() ) {
 				
-				if(countriesMap.get(rs.getInt("ccode")) == null){
-				
 					Country c = new Country(
-							rs.getInt("ccode"),
+							rs.getInt("CCode"),
 							rs.getString("StateAbb"), 
 							rs.getString("StateNme")) ;
 					countriesMap.put(c.getcCode(), c);
-					list.add(c);
-				} else 
-					list.add(countriesMap.get(rs.getInt("ccode")));
+					result.add(c);
+					
 			}
 			
 			conn.close() ;
-			
-			return list ;
-			
+			return result;
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
-		
-		return null ;
 	}
 	
 	public List<Country> getCountryByYear(int year, Map<Integer, Country> countriesMap) {

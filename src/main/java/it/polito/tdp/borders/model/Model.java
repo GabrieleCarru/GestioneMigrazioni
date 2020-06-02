@@ -15,6 +15,7 @@ import it.polito.tdp.borders.db.BordersDAO;
 
 public class Model {
 	
+	private List<Country> allCountries;
 	private List<Country> countries;
 	private Map<Integer, Country> countriesMap;
 	private Graph<Country, DefaultEdge> graph;
@@ -24,16 +25,17 @@ public class Model {
 
 	public Model() {
 		dao = new BordersDAO();
-		this.countries = dao.loadAllCountries(countriesMap);
+		allCountries = dao.loadAllCountries(countriesMap);
 		// La mappa viene riempita nel DAO
 	}
 	
 	public void creaGrafo(int year) {
 		
 		graph = new SimpleGraph<Country, DefaultEdge>(DefaultEdge.class);
+		countries = dao.getCountryByYear(year, countriesMap);
 		
 		// Creare i vertici 
-		Graphs.addAllVertices(graph, dao.getCountryByYear(year, countriesMap));
+		Graphs.addAllVertices(graph, countries);
 		
 		// Creare gli archi
 		adiacenze = dao.getAdiacenzeFromCountryConttype1(year, countriesMap);
@@ -56,6 +58,19 @@ public class Model {
 		}
 		
 		return result;
+	}
+	
+	public List<CountryAndNumber> getCountryNumber() {
+		
+		List<CountryAndNumber> result = new ArrayList<>();
+		
+		for(Country c : countries) {
+			CountryAndNumber cn = new CountryAndNumber(c, contaAdiacenze(c));
+			result.add(cn);
+		}
+		
+		return result;
+		
 	}
 	
 }
