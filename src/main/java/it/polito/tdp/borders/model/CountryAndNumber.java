@@ -31,7 +31,7 @@ public class CountryAndNumber implements Comparable<CountryAndNumber> {
 	}
 	@Override
 	public int compareTo(CountryAndNumber other) {
-		return numAdiacenze.compareTo(other.numAdiacenze);
+		return -(numAdiacenze.compareTo(other.numAdiacenze));
 	}
 	
 	

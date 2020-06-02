@@ -20,6 +20,7 @@ public class Model {
 	private Map<Integer, Country> countriesMap;
 	private Graph<Country, DefaultEdge> graph;
 	private List<Adiacenza> adiacenze;
+	private Simulator sim;
 	
 	private BordersDAO dao;
 
@@ -28,6 +29,7 @@ public class Model {
 		countriesMap = new HashMap<>();
 		allCountries = dao.loadAllCountries(countriesMap);
 		// La mappa viene riempita nel DAO
+		this.sim = new Simulator();
 	}
 	
 	public void creaGrafo(int year) {
@@ -70,8 +72,15 @@ public class Model {
 			result.add(cn);
 		}
 		
+		Collections.sort(result);
+		
 		return result;
 		
+	}
+	
+	public List<Country> getCountries() {
+		Collections.sort(countries);
+		return countries;
 	}
 	
 	public int numberVertex() {
@@ -80,6 +89,27 @@ public class Model {
 	
 	public int numberEdge() {
 		return graph.edgeSet().size();
+	}
+	
+	public void simula(Country partenza) {
+		if(this.graph != null) {
+			sim.init(partenza, this.graph);
+			sim.run();
+		}
+	}
+	
+	public Integer getT() {
+		return this.sim.getT();
+	}
+	
+	public List<CountryAndNumber> getStanziali() {
+		Map<Country, Integer> stanziali = this.sim.getStanziali();
+		List<CountryAndNumber> res = new ArrayList<CountryAndNumber>();
+		for(Country c : stanziali.keySet()) {
+			CountryAndNumber cn = new CountryAndNumber(c, stanziali.get(c));
+		}
+		Collections.sort(res);
+		return res;
 	}
 	
 }
